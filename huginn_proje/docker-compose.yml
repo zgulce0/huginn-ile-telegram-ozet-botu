@@ -54,7 +54,7 @@ services:
     networks:
       - huginn
     environment:
-      - TELEGRAM_TOKEN=8742601391:AAEXkk0Zv9uCQ-R6R5vzmAELl156lUHrEiM
+      - TELEGRAM_TOKEN="aldığınız token"
     ports:
       - "5000:5000"
     depends_on:
