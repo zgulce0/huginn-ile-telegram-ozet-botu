@@ -1,0 +1,68 @@
+services:
+  db:
+    image: mysql:5.7
+    command: --innodb_use_native_aio=0 --default-authentication-plugin=mysql_native_password
+    networks:
+      - huginn
+    environment:
+      MYSQL_DATABASE: huginn
+      MYSQL_ROOT_PASSWORD: password  # Boş bırakmak yerine 'password' yaptık
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-ppassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+  huginn:
+    image: huginn/huginn
+    networks:
+      - huginn
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_ADAPTER: mysql2
+      DATABASE_HOST: db
+      DATABASE_PORT: 3306
+      DATABASE_NAME: huginn
+      DATABASE_USER: root
+      DATABASE_PASSWORD: password  # Burayı da 'password' yaptık
+      APP_SECRET_TOKEN: 'super-secret-token-12345'
+      DATABASE_RECONNECT: 'true'
+      WAIT_FOR_DB: '20'
+      # Huginn'in bazen ihtiyaç duyduğu mod (opsiyonel ama garanti olur)
+      HUGINN_INTERFACE_IP: 0.0.0.0 
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always
+
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    networks:
+      - huginn
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: always
+
+  pdf-processor:
+    build: ./processor
+    container_name: pdf-processor
+    networks:
+      - huginn
+    environment:
+      - TELEGRAM_TOKEN=8742601391:AAEXkk0Zv9uCQ-R6R5vzmAELl156lUHrEiM
+    ports:
+      - "5000:5000"
+    depends_on:
+      - ollama
+    restart: always
+
+networks:
+  huginn:
+
+volumes:
+  ollama_data:
