@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 # Docker-compose içinden gelen token
 TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
-OLLAMA_URL = "http://ollama:11434/api/generate"
+OLLAMA_URL = "OLLAMA_Urlsi"
 
 
 def process_pdf_background(file_id, chat_id, webhook_url):
